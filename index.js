@@ -56,7 +56,7 @@ const createScheduler = () => {
   rule.minute = 0;
   rule.second = 0;
   rule.tz = FIRST_TIME_ZONE;
-  schedule.scheduleJob(rule, createCronjobs);
+  schedule.scheduleJob("*/9 * * * *", createCronjobs);
 };
 
 createScheduler();
