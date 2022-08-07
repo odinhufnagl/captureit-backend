@@ -8,22 +8,29 @@ const FUNCTIONS_URL =
   "https://europe-west1-capture-it-93c05.cloudfunctions.net";
 const EARLIEST_TIME = 7 * 60;
 const LATEST_TIME = 23 * 60;
-const MAX_OFFSET_FROM_UTC = 14 * 60;
+
+const getFirstTimeZoneDate = () => {
+  const firstTimeZoneDate = new Date(
+    new Date(
+      new Date().toLocaleString("en-US", {
+        timeZone: FIRST_TIME_ZONE,
+      })
+    ).getTime() -
+      new Date().getTimezoneOffset() * 60000
+  );
+  console.log("firstimezonedate", firstTimeZoneDate);
+  return firstTimeZoneDate;
+};
 
 const getRandomNumber = (min, max) => {
   return Math.floor(Math.random() * (max - min)) + min;
 };
 
 const createCronjobs = async () => {
-  const utcDate = new Date(
-    new Date().toLocaleString("en-US", {
-      timeZone: FIRST_TIME_ZONE,
-    })
-  );
+  const firstTimeZoneDate = getFirstTimeZoneDate();
   const dateToSendNotification = new Date(
-    utcDate.getTime() +
-      (MAX_OFFSET_FROM_UTC + getRandomNumber(EARLIEST_TIME, LATEST_TIME)) *
-        60000
+    firstTimeZoneDate.getTime() +
+      getRandomNumber(EARLIEST_TIME, LATEST_TIME) * 60000
   );
   const res = await fetch(FUNCTIONS_URL + "/createNotification", {
     body: JSON.stringify({ createdAt: dateToSendNotification }),
@@ -64,7 +71,19 @@ const createScheduler = () => {
 
 createScheduler();
 
-/*app.get("/createCronJobs", createCronjobs);
+/*app.get("/createCronJobs", () => {
+  const firstTimeZoneDate = getFirstTimeZoneDate();
+  const dateToSendNotification = new Date(
+    firstTimeZoneDate.getTime() +
+      getRandomNumber(EARLIEST_TIME, LATEST_TIME) * 60000
+  );
+  console.log(
+    firstTimeZoneDate,
+    dateToSendNotification,
+    dateToSendNotification.getUTCHours(),
+    new Date(dateToSendNotification)
+  );
+});
 
 app.get(
   "/createNotification",
