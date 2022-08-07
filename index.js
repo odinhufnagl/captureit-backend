@@ -4,8 +4,8 @@ const app = express();
 const fetch = require("node-fetch");
 const schedule = require("node-schedule");
 const FIRST_TIME_ZONE = "Pacific/Kiritimati";
-const PORT = 8087;
-const FUNCTIONS_URL = "http://localhost:5002/capture-it-93c05/europe-west1";
+const FUNCTIONS_URL =
+  "https://europe-west1-capture-it-93c05.cloudfunctions.net";
 const EARLIEST_TIME = 7 * 60;
 const LATEST_TIME = 23 * 60;
 
