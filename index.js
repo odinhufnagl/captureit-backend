@@ -50,6 +50,7 @@ const handleCronJob = async (cronJob, timeZone, index) => {
 };
 
 const createScheduler = () => {
+  console.log("running");
   var rule = new schedule.RecurrenceRule();
   rule.hour = 0;
   rule.minute = 0;
@@ -58,4 +59,4 @@ const createScheduler = () => {
   schedule.scheduleJob(rule, createCronjobs);
 };
 
-app.listen(PORT, createScheduler);
+createScheduler();
