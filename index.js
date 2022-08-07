@@ -3,6 +3,7 @@ const { timezones } = require("./data");
 const app = express();
 const fetch = require("node-fetch");
 const schedule = require("node-schedule");
+const moment = require("moment-timezone");
 const FIRST_TIME_ZONE = "Pacific/Kiritimati";
 const FUNCTIONS_URL =
   "https://europe-west1-capture-it-93c05.cloudfunctions.net";
@@ -27,24 +28,25 @@ const getRandomNumber = (min, max) => {
 };
 
 const createCronjobs = async () => {
-  const firstTimeZoneDate = getFirstTimeZoneDate();
-  const dateToSendNotification = new Date(
-    firstTimeZoneDate.getTime() +
-      getRandomNumber(EARLIEST_TIME, LATEST_TIME) * 60000
-  );
+  const firstTimeZoneDate = moment().tz(FIRST_TIME_ZONE);
+  firstTimeZoneDate.add(getRandomNumber(EARLIEST_TIME, LATEST_TIME), "minutes");
+
   const res = await fetch(FUNCTIONS_URL + "/createNotification", {
-    body: JSON.stringify({ createdAt: dateToSendNotification }),
+    body: JSON.stringify({
+      createdAt: firstTimeZoneDate.format("YYYY-MM-DD HH:mm:ss"),
+    }),
     method: "POST",
   });
+
   if (!res) {
     return;
   }
   timezones.forEach((timeZone) => {
     var rule = new schedule.RecurrenceRule();
-    rule.dayOfWeek = dateToSendNotification.getUTCDay();
-    rule.hour = dateToSendNotification.getUTCHours();
-    rule.minute = dateToSendNotification.getUTCMinutes();
-    rule.second = dateToSendNotification.getUTCSeconds();
+    rule.dayOfWeek = firstTimeZoneDate.day();
+    rule.hour = firstTimeZoneDate.hour();
+    rule.minute = firstTimeZoneDate.minute();
+    rule.second = firstTimeZoneDate.second();
     rule.tz = timeZone;
     let cronJob = schedule.scheduleJob(rule, () =>
       handleCronJob(cronJob, timeZone)
@@ -71,21 +73,7 @@ const createScheduler = () => {
 
 createScheduler();
 
-/*app.get("/createCronJobs", () => {
-  const firstTimeZoneDate = getFirstTimeZoneDate();
-  const dateToSendNotification = new Date(
-    firstTimeZoneDate.getTime() +
-      getRandomNumber(EARLIEST_TIME, LATEST_TIME) * 60000
-  );
-  console.log(
-    firstTimeZoneDate,
-    dateToSendNotification,
-    dateToSendNotification.getUTCHours(),
-    new Date(dateToSendNotification)
-  );
-});
-
-app.get(
+/*app.get(
   "/createNotification",
   async () =>
     await fetch(FUNCTIONS_URL + "/createNotification", {
