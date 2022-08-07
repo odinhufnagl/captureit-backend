@@ -64,9 +64,9 @@ const createScheduler = () => {
 
 createScheduler();
 
-app.get("/createCronJobs", createCronjobs);
+/*app.get("/createCronJobs", createCronjobs);
 
-/*app.get(
+app.get(
   "/createNotification",
   async () =>
     await fetch(FUNCTIONS_URL + "/createNotification", {
