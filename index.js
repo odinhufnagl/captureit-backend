@@ -8,17 +8,23 @@ const FUNCTIONS_URL =
   "https://europe-west1-capture-it-93c05.cloudfunctions.net";
 const EARLIEST_TIME = 7 * 60;
 const LATEST_TIME = 23 * 60;
+const MAX_OFFSET_FROM_UTC = 14 * 60;
 
 const getRandomNumber = (min, max) => {
   return Math.floor(Math.random() * (max - min)) + min;
 };
 
 const createCronjobs = async () => {
-  const utcDate = new Date();
-  const dateToSendNotification = new Date(
-    utcDate.getTime() + getRandomNumber(EARLIEST_TIME, LATEST_TIME) * 60000
+  const utcDate = new Date(
+    new Date().toLocaleString("en-US", {
+      timeZone: FIRST_TIME_ZONE,
+    })
   );
-  //date to send notification is now in kiritimati time because of MAX_OFFSET;
+  const dateToSendNotification = new Date(
+    utcDate.getTime() +
+      (MAX_OFFSET_FROM_UTC + getRandomNumber(EARLIEST_TIME, LATEST_TIME)) *
+        60000
+  );
   const res = await fetch(FUNCTIONS_URL + "/createNotification", {
     body: JSON.stringify({ createdAt: dateToSendNotification }),
     method: "POST",
@@ -26,8 +32,7 @@ const createCronjobs = async () => {
   if (!res) {
     return;
   }
-  console.log(dateToSendNotification);
-  timezones.forEach((timeZone, index) => {
+  timezones.forEach((timeZone) => {
     var rule = new schedule.RecurrenceRule();
     rule.dayOfWeek = dateToSendNotification.getUTCDay();
     rule.hour = dateToSendNotification.getUTCHours();
@@ -35,13 +40,12 @@ const createCronjobs = async () => {
     rule.second = dateToSendNotification.getUTCSeconds();
     rule.tz = timeZone;
     let cronJob = schedule.scheduleJob(rule, () =>
-      handleCronJob(cronJob, timeZone, index)
+      handleCronJob(cronJob, timeZone)
     );
   });
 };
 
-const handleCronJob = async (cronJob, timeZone, index) => {
-  console.log(timeZone);
+const handleCronJob = async (cronJob, timeZone) => {
   await fetch(FUNCTIONS_URL + "/sendOpenCameraNotification", {
     body: JSON.stringify({ timeZone }),
     method: "POST",
@@ -50,7 +54,6 @@ const handleCronJob = async (cronJob, timeZone, index) => {
 };
 
 const createScheduler = () => {
-  console.log("running");
   var rule = new schedule.RecurrenceRule();
   rule.hour = 0;
   rule.minute = 0;
@@ -60,3 +63,29 @@ const createScheduler = () => {
 };
 
 createScheduler();
+
+app.get("/createCronJobs", createCronjobs);
+
+/*app.get(
+  "/createNotification",
+  async () =>
+    await fetch(FUNCTIONS_URL + "/createNotification", {
+      body: JSON.stringify({
+        createdAt: new Date(new Date().getTime() + (2 * 60 + 1) * 60000),
+      }),
+      method: "POST",
+    })
+);
+
+app.get(
+  "/sendNotification",
+  async () =>
+    await fetch(FUNCTIONS_URL + "/sendOpenCameraNotification", {
+      body: JSON.stringify({ timeZone: "Europe/Stockholm" }),
+      method: "POST",
+    })
+);
+
+app.listen(8090, () => {
+  console.log("listening");
+});*/
