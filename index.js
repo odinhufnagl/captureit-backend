@@ -28,8 +28,6 @@ const getRandomNumber = (min, max) => {
 };
 
 const createCronjobs = async () => {
-  console.log("helloooo");
-  return;
   const firstTimeZoneDate = moment().tz(FIRST_TIME_ZONE);
   firstTimeZoneDate.add(getRandomNumber(EARLIEST_TIME, LATEST_TIME), "minutes");
 
