@@ -4,7 +4,7 @@ interface IUser {
 }
 
 interface IDBNotification {
-  id?: string;
+  id?: number;
   createdAt?: string;
   title: string;
 }
@@ -12,4 +12,13 @@ interface IDBNotification {
 interface INotification {
   title: string;
   body: string;
+}
+
+interface ITimeZone {
+  name: string;
+}
+
+interface INotificationTimeZone {
+  timeZoneName: string;
+  notificationId: number;
 }

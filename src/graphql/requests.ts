@@ -1,8 +1,13 @@
 import { GRAPHQL_ENDPOINT, HASURA_SECRET } from "./constants";
 import { usersQuery } from "./queries";
 import fetch from "node-fetch";
-import { getUsersResult } from "./responseParsers";
-import { createNotificationsMutation } from "./mutations";
+import { createNotificationsResult, getUsersResult } from "./responseParsers";
+import {
+  createNotificationsMutation,
+  createNotificationTimeZonesMutation,
+  createTimeZonesMutation,
+  updateNotificationMutation,
+} from "./mutations";
 
 const graphQLFetch = async (
   query: string,
@@ -39,10 +44,49 @@ export const getUsers = async (
 
 export const createNotifications = async (
   notifications: Array<IDBNotification>
-): Promise<boolean | undefined> => {
+): Promise<IDBNotification[] | boolean | undefined> => {
   try {
     const res = await graphQLFetch(createNotificationsMutation(notifications));
-    return !!res;
+    return createNotificationsResult(res);
+  } catch (e) {
+    console.log(e);
+    return;
+  }
+};
+
+export const updateNotification = async (
+  id: number,
+  notification: IDBNotification
+): Promise<IDBNotification[] | boolean | undefined> => {
+  try {
+    await graphQLFetch(updateNotificationMutation(notification, id));
+    return true;
+  } catch (e) {
+    console.log(e);
+    return;
+  }
+};
+
+export const createTimeZones = async (
+  timeZones: Array<ITimeZone>
+): Promise<ITimeZone[] | boolean | undefined> => {
+  try {
+    await graphQLFetch(createTimeZonesMutation(timeZones));
+    return true;
+  } catch (e) {
+    console.log(e);
+    return;
+  }
+};
+
+export const createNotificationTimeZones = async (
+  notificationTimeZones: Array<INotificationTimeZone>
+): Promise<ITimeZone[] | boolean | undefined> => {
+  try {
+    await graphQLFetch(
+      createNotificationTimeZonesMutation(notificationTimeZones)
+    );
+    return true;
   } catch (e) {
     console.log(e);
     return;

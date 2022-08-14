@@ -2,7 +2,12 @@ const { timezones } = require("./data");
 import * as admin from "firebase-admin";
 import { NOTIFICATION_TYPES } from "./constants";
 import { NOTIFICATIONS_DATA } from "./data/notifications";
-import { createNotifications, getUsers } from "./graphql/requests";
+import {
+  createNotifications,
+  createNotificationTimeZones,
+  getUsers,
+  // updateNotification,
+} from "./graphql/requests";
 import { sendNotification } from "./helpers/notifications";
 const schedule = require("node-schedule");
 const moment = require("moment-timezone");
@@ -46,7 +51,12 @@ const createCronjobs = async () => {
       createdAt: notificationCreatedAt,
     },
   ]);
-  if (!res) {
+  if (!res || typeof res === "boolean") {
+    return;
+  }
+  console.log("res", res);
+  const createdNotificationId = res[0].id;
+  if (!createdNotificationId) {
     return;
   }
   timezones.forEach((timeZone: string) => {
@@ -57,13 +67,19 @@ const createCronjobs = async () => {
     rule.second = firstTimeZoneDate.second();
     rule.tz = timeZone;
     let cronJob = schedule.scheduleJob(rule, () =>
-      handleCronJob(cronJob, timeZone)
+      handleCronJob(cronJob, timeZone, createdNotificationId)
     );
   });
 };
 
-const handleCronJob = async (cronJob: any, timeZone: string) => {
-  console.log("timeZone", timeZone);
+const handleCronJob = async (
+  cronJob: any,
+  timeZone: string,
+  notificationId: number
+) => {
+  await createNotificationTimeZones([
+    { timeZoneName: timeZone, notificationId },
+  ]);
   await sendOpenCameraNotification(timeZone);
   cronJob.cancel();
 };
