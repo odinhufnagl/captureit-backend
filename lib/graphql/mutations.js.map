@@ -1,0 +1,1 @@
+{"version":3,"file":"mutations.js","sourceRoot":"","sources":["../../src/graphql/mutations.ts"],"names":[],"mappings":";;;AAAA,uCAA4C;AAErC,MAAM,2BAA2B,GAAG,CACzC,GAA2B,EACnB,EAAE;IACV,MAAM,KAAK,GAAG,IAAA,yBAAe,EAAC,GAAU,CAAC,CAAC;IAC1C,OAAO;;mCAE0B,KAAK;;KAEnC,CAAC;AACN,CAAC,CAAC;AATW,QAAA,2BAA2B,+BAStC"}
