@@ -1,1 +1,1 @@
-worker: node lib/index.js
+worker: pm2-runtime start ecosystem.config.js --env production
