@@ -3,8 +3,11 @@ import * as admin from "firebase-admin";
 import { NOTIFICATION_TYPES } from "./constants";
 import { NOTIFICATIONS_DATA } from "./data/notifications";
 import {
+  createDBCronJob,
   createNotifications,
   createNotificationTimeZones,
+  deleteDBCronJob,
+  getDBCronJobs,
   getUsers,
   // updateNotification,
 } from "./graphql/requests";
@@ -44,7 +47,6 @@ const createCronjobs = async () => {
   const firstTimeZoneDate = moment().tz(FIRST_TIME_ZONE);
   firstTimeZoneDate.add(getRandomNumber(EARLIEST_TIME, LATEST_TIME), "minutes");
   const notificationCreatedAt = firstTimeZoneDate.format("YYYY-MM-DD HH:mm:ss");
-  console.log("notification created at", notificationCreatedAt);
   const res = await createNotifications([
     {
       title: "random",
@@ -54,20 +56,37 @@ const createCronjobs = async () => {
   if (!res || typeof res === "boolean") {
     return;
   }
-  console.log("res", res);
   const createdNotificationId = res[0].id;
   if (!createdNotificationId) {
     return;
   }
-  timezones.forEach((timeZone: string) => {
+  timezones.forEach(async (timeZone: string) => {
+    const day = firstTimeZoneDate.day();
+    const hour = firstTimeZoneDate.hour();
+    const minute = firstTimeZoneDate.minute();
+    const second = firstTimeZoneDate.second();
     var rule = new schedule.RecurrenceRule();
-    rule.dayOfWeek = firstTimeZoneDate.day();
-    rule.hour = firstTimeZoneDate.hour();
-    rule.minute = firstTimeZoneDate.minute();
-    rule.second = firstTimeZoneDate.second();
+    rule.dayOfWeek = day;
+    rule.hour = hour;
+    rule.minute = minute;
+    rule.second = second;
     rule.tz = timeZone;
+
+    //safing if server restarts
+    const dbCronJobId = await createDBCronJob({
+      day,
+      hour,
+      minute,
+      second,
+      timeZone,
+      notificationId: createdNotificationId,
+    });
+
+    if (!dbCronJobId) {
+      return;
+    }
     let cronJob = schedule.scheduleJob(rule, () =>
-      handleCronJob(cronJob, timeZone, createdNotificationId)
+      handleCronJob(cronJob, timeZone, createdNotificationId, dbCronJobId)
     );
   });
 };
@@ -75,8 +94,13 @@ const createCronjobs = async () => {
 const handleCronJob = async (
   cronJob: any,
   timeZone: string,
-  notificationId: number
+  notificationId: number,
+  dbCronJobId: number
 ) => {
+  const res1 = await deleteDBCronJob(dbCronJobId);
+  if (!res1) {
+    return;
+  }
   await createNotificationTimeZones([
     { timeZoneName: timeZone, notificationId },
   ]);
@@ -93,4 +117,23 @@ const createScheduler = () => {
   schedule.scheduleJob(rule, createCronjobs);
 };
 
+const checkAfterUnfinishedJobs = async () => {
+  const res = await getDBCronJobs();
+  if (!res) {
+    return;
+  }
+  res.forEach(({ day, hour, minute, second, timeZone, notificationId, id }) => {
+    var rule = new schedule.RecurrenceRule();
+    rule.dayOfWeek = day;
+    rule.hour = hour;
+    rule.minute = minute;
+    rule.second = second;
+    rule.tz = timeZone;
+    let cronJob = schedule.scheduleJob(rule, () =>
+      handleCronJob(cronJob, timeZone, notificationId, id as number)
+    );
+  });
+};
+
 createScheduler();
+checkAfterUnfinishedJobs();

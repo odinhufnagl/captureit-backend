@@ -43,3 +43,19 @@ export const createNotificationTimeZonesMutation = (
   }
     `;
 };
+
+export const createCronJobMutation = (obj: IDBCronJob): string => {
+  const input = objectToGraphql(obj as any);
+  return `
+  mutation {
+    insert_cronJobs_one(object:${input}) {returning{id}}
+  }
+    `;
+};
+
+export const deleteCronJobMutation = (id: number): string => {
+  const idInput = objectToGraphql(id as any);
+  return `
+  mutation {delete_cronJobs_by_pk(id: ${idInput}) {id}} 
+    `;
+};

@@ -14,3 +14,18 @@ export const usersQuery = (
   }
 `;
 };
+
+export const cronJobsQuery = (): string =>
+  `
+  query {
+    cronJobs {
+        timeZone,
+        id,
+        day,
+        hour,
+        minute,
+        second,
+        notificationId
+    }
+  }
+`;

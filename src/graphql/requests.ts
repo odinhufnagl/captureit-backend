@@ -1,11 +1,17 @@
 import { GRAPHQL_ENDPOINT, HASURA_SECRET } from "./constants";
-import { usersQuery } from "./queries";
+import { cronJobsQuery, usersQuery } from "./queries";
 import fetch from "node-fetch";
-import { createNotificationsResult, getUsersResult } from "./responseParsers";
 import {
+  createNotificationsResult,
+  getDBCronJobsResult,
+  getUsersResult,
+} from "./responseParsers";
+import {
+  createCronJobMutation,
   createNotificationsMutation,
   createNotificationTimeZonesMutation,
   createTimeZonesMutation,
+  deleteCronJobMutation,
   updateNotificationMutation,
 } from "./mutations";
 
@@ -23,7 +29,6 @@ const graphQLFetch = async (
       body: JSON.stringify({ query, variables }),
     });
     res = await res.json();
-    console.log("res", res);
     return res;
   } catch (e) {
     console.log(e);
@@ -90,5 +95,37 @@ export const createNotificationTimeZones = async (
   } catch (e) {
     console.log(e);
     return;
+  }
+};
+
+export const createDBCronJob = async (
+  cronJob: IDBCronJob
+): Promise<number | undefined> => {
+  try {
+    const res = await graphQLFetch(createCronJobMutation(cronJob));
+    return res.insert_cronJobs_one.id;
+  } catch (e) {
+    console.log(e);
+    return;
+  }
+};
+
+export const getDBCronJobs = async (): Promise<IDBCronJob[] | undefined> => {
+  try {
+    const res = await graphQLFetch(cronJobsQuery());
+    return getDBCronJobsResult(res);
+  } catch (e) {
+    console.log(e);
+    return;
+  }
+};
+
+export const deleteDBCronJob = async (id: number): Promise<boolean> => {
+  try {
+    await graphQLFetch(deleteCronJobMutation(id));
+    return true;
+  } catch (e) {
+    console.log(e);
+    return false;
   }
 };

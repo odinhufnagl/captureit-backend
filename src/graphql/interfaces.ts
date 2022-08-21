@@ -22,3 +22,13 @@ interface INotificationTimeZone {
   timeZoneName: string;
   notificationId: number;
 }
+
+interface IDBCronJob {
+  id?: number;
+  timeZone: string;
+  day: number;
+  hour: number;
+  minute: number;
+  second: number;
+  notificationId: number;
+}
