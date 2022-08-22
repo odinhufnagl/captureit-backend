@@ -82,6 +82,8 @@ const createCronjobs = async () => {
       notificationId: createdNotificationId,
     });
 
+    console.log("dbCronjobId", dbCronJobId);
+
     if (!dbCronJobId) {
       return;
     }
@@ -98,6 +100,7 @@ const handleCronJob = async (
   dbCronJobId: number
 ) => {
   const res1 = await deleteDBCronJob(dbCronJobId);
+  console.log("res1", res1);
   if (!res1) {
     return;
   }
