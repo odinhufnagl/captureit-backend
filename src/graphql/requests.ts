@@ -2,6 +2,7 @@ import { GRAPHQL_ENDPOINT, HASURA_SECRET } from "./constants";
 import { cronJobsQuery, usersQuery } from "./queries";
 import fetch from "node-fetch";
 import {
+  createDBCronJobResult,
   createNotificationsResult,
   getDBCronJobsResult,
   getUsersResult,
@@ -103,7 +104,8 @@ export const createDBCronJob = async (
 ): Promise<number | undefined> => {
   try {
     const res = await graphQLFetch(createCronJobMutation(cronJob));
-    return res.insert_cronJobs_one.id;
+    console.log("res, createDBCronJob");
+    return createDBCronJobResult(res).id;
   } catch (e) {
     console.log(e);
     return;
@@ -113,6 +115,7 @@ export const createDBCronJob = async (
 export const getDBCronJobs = async (): Promise<IDBCronJob[] | undefined> => {
   try {
     const res = await graphQLFetch(cronJobsQuery());
+
     return getDBCronJobsResult(res);
   } catch (e) {
     console.log(e);
@@ -123,6 +126,7 @@ export const getDBCronJobs = async (): Promise<IDBCronJob[] | undefined> => {
 export const deleteDBCronJob = async (id: number): Promise<boolean> => {
   try {
     await graphQLFetch(deleteCronJobMutation(id));
+    console.log("res1 deletecronjob");
     return true;
   } catch (e) {
     console.log(e);

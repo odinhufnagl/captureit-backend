@@ -20,6 +20,12 @@ interface CronJobsResult {
 interface CronJobsResultData {
   cronJobs: IDBCronJob[];
 }
+interface CronJobResult {
+  data: CronJobResultData;
+}
+interface CronJobResultData {
+  insert_cronJobs_one: IDBCronJob;
+}
 
 export const getUsersResult = (res: UserResult): IUser[] | undefined =>
   res.data && res.data.users;
@@ -34,3 +40,6 @@ export const createNotificationsResult = (
 export const getDBCronJobsResult = (
   res: CronJobsResult
 ): IDBCronJob[] | undefined => res.data && res.data.cronJobs;
+
+export const createDBCronJobResult = (res: CronJobResult): IDBCronJob =>
+  res.data && res.data.insert_cronJobs_one;

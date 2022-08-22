@@ -100,7 +100,7 @@ const handleCronJob = async (
   dbCronJobId: number
 ) => {
   const res1 = await deleteDBCronJob(dbCronJobId);
-  console.log("res1", res1);
+  console.log("res deleteCronjob", res1);
   if (!res1) {
     return;
   }
