@@ -48,7 +48,7 @@ export const createCronJobMutation = (obj: IDBCronJob): string => {
   const input = objectToGraphql(obj as any);
   return `
   mutation {
-    insert_cronJobs_one(object:${input}) {returning{id}}
+    insert_cronJobs_one(object:${input}) {id}
   }
     `;
 };
