@@ -56,6 +56,7 @@ const createCronjobs = async () => {
   if (!res || typeof res === "boolean") {
     return;
   }
+  console.log("notification created");
   const createdNotificationId = res[0].id;
   if (!createdNotificationId) {
     return;
