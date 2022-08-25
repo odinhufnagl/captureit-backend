@@ -46,6 +46,7 @@ export const createNotificationTimeZonesMutation = (
 
 export const createCronJobMutation = (obj: IDBCronJob): string => {
   const input = objectToGraphql(obj as any);
+  console.log("input createCronjob", input);
   return `
   mutation {
     insert_cronJobs_one(object:${input}) {id}

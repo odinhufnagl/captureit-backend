@@ -104,7 +104,7 @@ export const createDBCronJob = async (
 ): Promise<number | undefined> => {
   try {
     const res = await graphQLFetch(createCronJobMutation(cronJob));
-    console.log("res, createDBCronJob");
+    console.log("res, createDBCronJob", res);
     return createDBCronJobResult(res).id;
   } catch (e) {
     console.log(e);
