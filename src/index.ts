@@ -18,6 +18,8 @@ const FIRST_TIME_ZONE = "Pacific/Kiritimati";
 const EARLIEST_TIME = 7 * 60;
 const LATEST_TIME = 23 * 60;
 
+//const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 console.log("worker is running...");
 
 const serviceAccount = require("./serviceAccountKey.json"); // eslint-disable-line
@@ -61,7 +63,7 @@ const createCronjobs = async () => {
   if (!createdNotificationId) {
     return;
   }
-  timezones.forEach(async (timeZone: string) => {
+  for (const timeZone of timezones) {
     const day = firstTimeZoneDate.day();
     const hour = firstTimeZoneDate.hour();
     const minute = firstTimeZoneDate.minute();
@@ -91,7 +93,7 @@ const createCronjobs = async () => {
     let cronJob = schedule.scheduleJob(rule, () =>
       handleCronJob(cronJob, timeZone, createdNotificationId, dbCronJobId)
     );
-  });
+  }
 };
 
 const handleCronJob = async (
