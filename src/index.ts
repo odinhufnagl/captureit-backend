@@ -107,10 +107,12 @@ const handleCronJob = async (
   if (!res1) {
     return;
   }
-  await createNotificationTimeZones([
+  const res2 = await createNotificationTimeZones([
     { timeZoneName: timeZone, notificationId },
   ]);
+  console.log("res createNotificationTimezones", res2);
   await sendOpenCameraNotification(timeZone);
+  console.log("has send notification");
   cronJob.cancel();
 };
 

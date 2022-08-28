@@ -37,6 +37,7 @@ export const createNotificationTimeZonesMutation = (
   obj: Array<INotificationTimeZone>
 ): string => {
   const input = objectToGraphql(obj as any);
+  console.log("input createNotificationTimezone", input);
   return `
   mutation {
     insert_notifications_timeZones(objects:${input}) {returning{timeZoneName}}
